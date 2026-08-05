@@ -1,0 +1,18 @@
+{
+  "name": "@archonum/samples",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "puppeteer": "node puppeteer-sample.js",
+    "playwright": "node playwright-sample.js",
+    "mcp": "node mcp-server.js"
+  },
+  "dependencies": {
+    "@archonum/engine": "workspace:^",
+    "@archonum/sdk": "workspace:^",
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "playwright": "^1.62.0",
+    "zod": "^4.4.3"
+  }
+}

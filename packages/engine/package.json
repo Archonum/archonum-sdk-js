@@ -1,0 +1,29 @@
+{
+  "name": "@archonum/engine",
+  "version": "1.0.0",
+  "description": "Browser automation on the archonum gateway: stealth remote Chrome sessions, accessibility snapshots, human-like input, bot-wall detection.",
+  "license": "MIT",
+  "type": "module",
+  "engines": { "node": ">=20.12" },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": ["dist", "src"],
+  "publishConfig": { "access": "public" },
+  "repository": { "type": "git", "url": "git+https://github.com/papers-ch/archonum-sdk-js.git", "directory": "packages/engine" },
+  "homepage": "https://github.com/papers-ch/archonum-sdk-js/tree/master/packages/engine#readme",
+  "keywords": ["archonum", "puppeteer", "cdp", "browser-automation", "scraping", "stealth"],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "tsx --test test/*.test.ts"
+  },
+  "dependencies": {
+    "@archonum/sdk": "workspace:^",
+    "puppeteer-core": "25.4.0"
+  }
+}

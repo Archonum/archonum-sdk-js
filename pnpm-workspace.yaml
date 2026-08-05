@@ -1,0 +1,19 @@
+packages:
+  - 'packages/*'
+  - 'samples'
+
+# `tsx` pulls in esbuild, whose native-binary postinstall trips pnpm's build-script
+# gate (ERR_PNPM_IGNORED_BUILDS) unless the decision is recorded here. Denying it is
+# safe: esbuild resolves its platform binary through its optional dependency, and
+# both `tsx` and `tsx --test` were verified working without the build step. Do not
+# delete this block — installs fail without it.
+allowBuilds:
+  esbuild: false
+
+# Nothing else needs a build script either: Playwright (a samples-only dependency,
+# added in a later task) downloads browser binaries we never use, because we attach
+# to the remote archonum gateway over CDP.
+onlyBuiltDependencies: []
+
+patchedDependencies:
+  puppeteer-core@25.4.0: patches/puppeteer-core@25.4.0.patch
