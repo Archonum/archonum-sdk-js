@@ -49,7 +49,7 @@ export function gatewayHostFromUrl(value: string): string | undefined {
 }
 
 /** The ARCHONUM_* configuration, with fallbacks resolved but no defaults applied. */
-export function readEnvConfig(env: NodeJS.ProcessEnv = process.env): EnvConfig {
+export function readEnvConfig(env: Record<string, string | undefined> = process.env): EnvConfig {
   const gateway = env.ARCHONUM_GATEWAY || (env.ARCHONUM_CDP_BASE_URL ? gatewayHostFromUrl(env.ARCHONUM_CDP_BASE_URL) : undefined);
   return {
     gateway,
