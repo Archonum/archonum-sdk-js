@@ -17,6 +17,10 @@ packages are ordinary npm packages you can install with npm, yarn, pnpm, or bun.
 | [`@archonum/engine`](packages/engine/README.md) | Stealth browser automation on top of the SDK: sessions, accessibility snapshots, human-like input, bot-wall detection. |
 | [`@archonum/cli`](packages/cli/README.md) | `npx @archonum/cli <url>` to screenshot any site from a terminal. |
 
+There is also [`skills/`](skills/README.md) — installable agent skills (the
+repo-hosted copy of <https://app.archonum.com/skill.md>) for agents that can't
+fetch web pages.
+
 **Status:** none of these are published to npm yet — `npx @archonum/cli` and
 `pnpm add @archonum/sdk` (etc.) will work once they are, per the Releasing section
 below. Until then, run the CLI from a built checkout:
