@@ -193,6 +193,11 @@ export class ArchonumEngine {
    * gets past bot walls, runs full client-side JS, and can read a page as seen
    * from `country`. Stateless (connect + disconnect); for interaction use
    * {@link connect} + a session instead.
+   *
+   * `format: 'markdown'` returns LLM-optimized markdown instead of plain text —
+   * headings, links, lists, tables and code fences survive; navigation chrome
+   * doesn't. Same waiting/settling behaviour either way; only the extraction
+   * differs. The result's `format` field echoes which one `text` is in.
    */
   async read(
     url: string,
@@ -205,6 +210,7 @@ export class ArchonumEngine {
       timeoutMs = 15000,
       navTimeout = 90000,
       maxChars = 8000,
+      format = 'text',
       screenshot = false,
     }: {
       country?: string;
@@ -215,6 +221,7 @@ export class ArchonumEngine {
       timeoutMs?: number;
       navTimeout?: number;
       maxChars?: number;
+      format?: 'text' | 'markdown';
       screenshot?: boolean;
     } = {},
   ): Promise<ReadResult> {
@@ -241,8 +248,11 @@ export class ArchonumEngine {
         }
       }
       const info = await session.pageInfo(page, res); // status from the navigation response
-      const { text, truncated } = await session.pageText(page, { maxChars });
-      const result: ReadResult = { ...info, settled, text, truncated };
+      const { text, truncated } =
+        format === 'markdown'
+          ? await session.pageMarkdown(page, { maxChars }).then((m) => ({ text: m.markdown, truncated: m.truncated }))
+          : await session.pageText(page, { maxChars });
+      const result: ReadResult = { ...info, settled, text, format, truncated };
       if (wait.stalled) result.stalled = true;
       if (wait.excerpt != null) result.excerpt = wait.excerpt;
       if (screenshot) result.screenshot = (await session.captureViewport(page)).buffer;

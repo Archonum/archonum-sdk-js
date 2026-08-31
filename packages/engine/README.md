@@ -54,6 +54,12 @@ const { text, settled, blocked } = await engine.read('https://example.com/', {
   country: 'de',
   waitForText: 'Add to cart',   // gate extraction on real content, not a shell
 });
+
+// Same read, as LLM-optimized markdown: headings, links, lists, tables and
+// code fences survive; navigation chrome, scripts and hidden elements don't.
+const { text: markdown } = await engine.read('https://example.com/', {
+  format: 'markdown',
+});
 ```
 
 `read()` waits until content actually rendered (`minTextLength` or `waitForText`)
@@ -75,6 +81,7 @@ await session.type(page, 'e42', 'archonum', { submit: true });
 await session.waitForContent(page, { minTextLength: 500 });
 
 const { text } = await session.pageText(page);         // read what you drove to
+const { markdown } = await session.pageMarkdown(page); // …or as structured markdown
 await session.captureViewport(page, { path: 'hn.png' });
 await session.disconnect();  // closes only pages it opened; the shared browser lives on
 ```

@@ -25,9 +25,10 @@ import { CHALLENGE_CLEARABLE, classifyChallenge, isBlocked, SHORT_PAGE_TEXT } fr
 import { locateRef, snapshotOutline } from './dom-scan.js';
 import { Humanizer } from './human.js';
 import { mutationCount } from './mutation.js';
+import { pageMarkdown } from './markdown.js';
 import { getClip, markCreated, setClip, wasCreated } from './page-state.js';
 import { pngSize } from './png.js';
-import type { CaptureResult, Clip, ContentWait, EffectResult, PageInfo, PageTextResult } from './types.js';
+import type { CaptureResult, Clip, ContentWait, EffectResult, PageInfo, PageMarkdownResult, PageTextResult } from './types.js';
 import { sleep } from './util.js';
 import { runFlow, type FlowStep } from './flow.js';
 
@@ -187,6 +188,18 @@ export class ArchonumSession {
       (document.body ? document.body.innerText : '').replace(/[ \t]+/g, ' ').replace(/\n{3,}/g, '\n\n').trim(),
     );
     return { text: full.slice(0, maxChars), truncated: full.length > maxChars, textLength: full.length };
+  }
+
+  /**
+   * The current page's content as LLM-optimized markdown: headings, links,
+   * lists, tables and code fences survive; navigation chrome, scripts and
+   * hidden elements are dropped. Prefer this over {@link pageText} when the
+   * consumer is a model — structure is signal, and boilerplate isn't. Same
+   * capping contract as `pageText` (`maxChars`, `truncated`, full pre-cap
+   * length as `markdownLength`).
+   */
+  async pageMarkdown(page: Page, opts: { maxChars?: number } = {}): Promise<PageMarkdownResult> {
+    return pageMarkdown(page, opts);
   }
 
   /**

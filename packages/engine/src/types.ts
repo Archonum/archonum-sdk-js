@@ -41,6 +41,13 @@ export interface PageTextResult {
   textLength: number;
 }
 
+export interface PageMarkdownResult {
+  markdown: string;
+  truncated: boolean;
+  /** Full markdown length before the `maxChars` cap. */
+  markdownLength: number;
+}
+
 export interface CaptureResult {
   buffer: Uint8Array | undefined;
   clip: Clip;
@@ -52,7 +59,10 @@ export interface ReadResult extends PageInfo {
   settled: boolean;
   stalled?: boolean;
   excerpt?: string;
+  /** Rendered page content — plain text, or markdown when `format: 'markdown'` was requested. */
   text: string;
+  /** Which format `text` is in — echoes the `format` option. */
+  format: 'text' | 'markdown';
   truncated: boolean;
   screenshot?: Uint8Array;
 }

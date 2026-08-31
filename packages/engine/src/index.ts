@@ -4,6 +4,8 @@ export { ArchonumSession, puppeteer, DESKTOP_UA } from './session.js';
 export { runFlow } from './flow.js';
 export type { FlowStep, RunFlowOptions } from './flow.js';
 export { CHALLENGE_CLEARABLE, isBlocked, SHORT_PAGE_TEXT } from './challenge.js';
+export { renderMarkdown } from './markdown.js';
+export type { MdBlock, MdInline } from './markdown.js';
 export type {
   Clip,
   ChallengeKind,
@@ -11,6 +13,7 @@ export type {
   PageInfo,
   ContentWait,
   PageTextResult,
+  PageMarkdownResult,
   CaptureResult,
   ReadResult,
   CompareResult,
