@@ -6,7 +6,8 @@ genuine mobile device with a per-session exit country — it walks past bot wall
 job left is to not announce the automation.
 
 This repo is a pnpm + TypeScript monorepo of three packages, plus a private
-samples workspace.
+samples workspace. pnpm is only needed to develop **this repo** — the published
+packages are ordinary npm packages you can install with npm, yarn, pnpm, or bun.
 
 ## Packages
 
