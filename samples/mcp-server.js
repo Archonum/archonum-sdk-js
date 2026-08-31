@@ -256,11 +256,12 @@ server.registerTool(
       country: z.string().length(2).optional().describe('ISO 3166-1 alpha-2 exit country; defaults to the server default'),
       waitForText: z.string().optional().describe('wait until this text appears before extracting (deterministic reads of JS-heavy pages)'),
       minTextLength: z.number().int().positive().optional().describe('wait until this much text has rendered (default 200)'),
+      format: z.enum(['text', 'markdown']).default('markdown').describe('markdown keeps headings/links/tables and drops navigation chrome; text is the raw rendered text'),
       screenshot: z.boolean().default(false).describe('also return a viewport PNG'),
     },
   },
-  ({ url, country, waitForText, minTextLength, screenshot }) =>
-    engine.read(url, { country, waitForText, minTextLength, screenshot }).then((r) => {
+  ({ url, country, waitForText, minTextLength, format, screenshot }) =>
+    engine.read(url, { country, waitForText, minTextLength, format, screenshot }).then((r) => {
       const content = [
         { type: 'text', text: `[${country ?? (engine.client.country || 'any')}] ${state(r)}\n\n${r.text}${r.truncated ? '\n\n…(truncated)' : ''}` },
       ];
@@ -338,13 +339,17 @@ server.registerTool(
       'the content.',
     inputSchema: {
       maxChars: z.number().int().positive().max(50_000).default(8000),
+      format: z.enum(['text', 'markdown']).default('markdown').describe('markdown keeps headings/links/tables and drops navigation chrome; text is the raw rendered text'),
       session: sessionParam,
     },
   },
-  ({ maxChars, session }) =>
+  ({ maxChars, format, session }) =>
     on(session, async (entry) => {
       const info = await entry.session.pageInfo(entry.page);
-      const { text: body, truncated } = await entry.session.pageText(entry.page, { maxChars });
+      const { text: body, truncated } =
+        format === 'markdown'
+          ? await entry.session.pageMarkdown(entry.page, { maxChars }).then((m) => ({ text: m.markdown, truncated: m.truncated }))
+          : await entry.session.pageText(entry.page, { maxChars });
       return text(`${label(session)} url: ${info.url}\n\n${body}${truncated ? '\n\n…(truncated)' : ''}`);
     }),
 );
