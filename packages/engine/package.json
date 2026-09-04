@@ -13,7 +13,7 @@
       "import": "./dist/index.js"
     }
   },
-  "files": ["dist", "src"],
+  "files": ["dist", "src", "CHANGELOG.md"],
   "publishConfig": { "access": "public" },
   "repository": { "type": "git", "url": "git+https://github.com/papers-ch/archonum-sdk-js.git", "directory": "packages/engine" },
   "homepage": "https://github.com/papers-ch/archonum-sdk-js/tree/master/packages/engine#readme",

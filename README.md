@@ -21,9 +21,9 @@ There is also [`skills/`](skills/README.md) — installable agent skills (the
 repo-hosted copy of <https://app.archonum.com/skill.md>) for agents that can't
 fetch web pages.
 
-**Status:** none of these are published to npm yet — `npx @archonum/cli` and
-`pnpm add @archonum/sdk` (etc.) will work once they are, per the Releasing section
-below. Until then, run the CLI from a built checkout:
+All three are published on npm — `npm i @archonum/sdk` (or engine/cli) just
+works, and so does `npx @archonum/cli <url>`. To run the CLI from a checkout
+instead:
 
 ```bash
 pnpm build && node packages/cli/dist/cli.js <url>

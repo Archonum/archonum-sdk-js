@@ -6,7 +6,7 @@
   "type": "module",
   "engines": { "node": ">=20.12" },
   "bin": { "archonum": "./dist/cli.js" },
-  "files": ["dist", "src"],
+  "files": ["dist", "src", "CHANGELOG.md"],
   "publishConfig": { "access": "public" },
   "repository": { "type": "git", "url": "git+https://github.com/papers-ch/archonum-sdk-js.git", "directory": "packages/cli" },
   "homepage": "https://github.com/papers-ch/archonum-sdk-js/tree/master/packages/cli#readme",
