@@ -11,7 +11,7 @@ process.env.REBROWSER_PATCHES_RUNTIME_FIX_MODE ||= 'alwaysIsolated';
 const { default: puppeteer } = await import('puppeteer-core');
 export { puppeteer };
 
-import type { Browser, HTTPResponse, Page } from 'puppeteer-core';
+import type { Browser, HTTPResponse, Page, Protocol } from 'puppeteer-core';
 import type { ConnectionInfo, RetryInfo } from '@archonum/sdk';
 import { withRetry } from '@archonum/sdk';
 import {
@@ -41,6 +41,46 @@ import { runFlow, type FlowStep } from './flow.js';
 // documented escape hatch for callers who explicitly want to force it.
 export const DESKTOP_UA =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36';
+
+/** What the page reported about itself; empty where it had no userAgentData. */
+export interface DeviceHints {
+  brands?: { brand: string; version: string }[] | null;
+  fullVersionList?: { brand: string; version: string }[] | null;
+  platform?: string;
+  platformVersion?: string;
+  architecture?: string;
+}
+
+/**
+ * Client hints for the desktop variant of a device UA: the page's own
+ * navigator.userAgentData where it has one, else derived from the UA string.
+ * userAgentData exists on secure pages only, and the page the engine reads it
+ * from is often about:blank. Overriding the UA with no metadata makes Chrome
+ * report empty brands and send no Sec-CH-UA at all, which no real Chrome does.
+ * The derived brands match what the node puts on the session
+ * (cdp-ua-brands in proxy-backend).
+ */
+export function desktopUserAgentMetadata(ua: string, real: DeviceHints): Protocol.Emulation.UserAgentMetadata | undefined {
+  const chrome = /\bChrome\/(\d+)(\.[\d.]+)?/.exec(ua);
+  if (!real.brands?.length && !chrome) return undefined;
+  const major = chrome?.[1] ?? '';
+  const full = chrome ? chrome[1] + (chrome[2] || '.0.0.0') : '';
+  return {
+    brands: real.brands?.length
+      ? [...real.brands]
+      : [{ brand: 'Chromium', version: major }, { brand: 'Google Chrome', version: major }, { brand: 'Not_A Brand', version: '8' }],
+    fullVersionList:
+      real.fullVersionList ??
+      (full
+        ? [{ brand: 'Chromium', version: full }, { brand: 'Google Chrome', version: full }, { brand: 'Not_A Brand', version: '8.0.0.0' }]
+        : undefined),
+    platform: real.platform || (/\bAndroid\b/.test(ua) ? 'Android' : 'Linux'),
+    platformVersion: real.platformVersion || /\bAndroid ([\d.]+)/.exec(ua)?.[1] || '',
+    architecture: real.architecture || '',
+    model: '', // desktop Chrome reports no device model
+    mobile: false,
+  };
+}
 
 /**
  * A connected remote browser plus the helpers you want around it.
@@ -134,19 +174,7 @@ export class ArchonumSession {
       if (real.ua) {
         // Drop the "Mobile" token (…Chrome/148 Mobile Safari → …Chrome/148 Safari).
         const desktopUA = real.ua.replace(/\sMobile(?=\sSafari)/i, '');
-        const metadata =
-          real.brands && real.brands.length
-            ? {
-                brands: real.brands,
-                fullVersionList: real.fullVersionList || undefined,
-                platform: real.platform || 'Linux',
-                platformVersion: real.platformVersion || '',
-                architecture: real.architecture || '',
-                model: '', // desktop Chrome reports no device model
-                mobile: false,
-              }
-            : undefined;
-        await page.setUserAgent(desktopUA, metadata);
+        await page.setUserAgent(desktopUA, desktopUserAgentMetadata(desktopUA, real));
       } else {
         // Device exposed no UA to derive from — fall back to the static desktop UA.
         await page.setUserAgent(DESKTOP_UA);
