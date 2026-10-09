@@ -56,6 +56,13 @@ test('readEnvConfig prefers ARCHONUM_GATEWAY over ARCHONUM_CDP_BASE_URL', () => 
   assert.equal(cfg.gateway, 'gw:1');
 });
 
+test('readEnvConfig leaves TLS to the client default unless ARCHONUM_GATEWAY_TLS turns it off', () => {
+  assert.equal(readEnvConfig({} as NodeJS.ProcessEnv).tls, undefined);
+  assert.equal(readEnvConfig({ ARCHONUM_GATEWAY_TLS: 'false' } as NodeJS.ProcessEnv).tls, false);
+  assert.equal(readEnvConfig({ ARCHONUM_GATEWAY_TLS: '0' } as NodeJS.ProcessEnv).tls, false);
+  assert.equal(readEnvConfig({ ARCHONUM_GATEWAY_TLS: 'true' } as NodeJS.ProcessEnv).tls, true);
+});
+
 test('readEnvConfig reads ARCHONUM_BASE_URL', () => {
   const cfg = readEnvConfig({ ARCHONUM_BASE_URL: 'https://stage.archonum.com' } as NodeJS.ProcessEnv);
   assert.equal(cfg.baseUrl, 'https://stage.archonum.com');
@@ -64,11 +71,12 @@ test('readEnvConfig reads ARCHONUM_BASE_URL', () => {
 test('readEnvConfig reads every ARCHONUM_ variable at once', () => {
   const cfg = readEnvConfig({
     ARCHONUM_GATEWAY: 'gw:1',
+    ARCHONUM_GATEWAY_TLS: 'false',
     ARCHONUM_BASE_URL: 'https://stage.archonum.com',
     ARCHONUM_USERNAME: 'user',
     ARCHONUM_TOKEN: 'tok',
   } as NodeJS.ProcessEnv);
-  assert.deepEqual(cfg, { gateway: 'gw:1', baseUrl: 'https://stage.archonum.com', username: 'user', token: 'tok' });
+  assert.deepEqual(cfg, { gateway: 'gw:1', tls: false, baseUrl: 'https://stage.archonum.com', username: 'user', token: 'tok' });
 });
 
 test('gatewayHostFromUrl handles a full URL, a bare host:port, and garbage', () => {

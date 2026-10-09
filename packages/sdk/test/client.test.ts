@@ -38,15 +38,25 @@ test('getConnectionInfo requests /json/version on the configured gateway and par
   const seen: string[] = [];
   const client = new ArchonumClient({ ...creds, gateway: 'gw.test:10900', country: 'de', fetch: async (url) => {
     seen.push(url);
-    return new Response(JSON.stringify({ Browser: 'Chrome/148', webSocketDebuggerUrl: 'ws://gw.test:10900/devtools/browser/xyz' }), { status: 200 });
+    return new Response(JSON.stringify({ Browser: 'Chrome/148', webSocketDebuggerUrl: 'wss://gw.test:10900/devtools/browser/xyz' }), { status: 200 });
   } });
   const info = await client.getConnectionInfo();
   assert.equal(info.Browser, 'Chrome/148');
   assert.equal(seen.length, 1);
   const requested = new URL(seen[0]);
-  assert.equal(requested.origin + requested.pathname, 'http://gw.test:10900/json/version');
+  assert.equal(requested.origin + requested.pathname, 'https://gw.test:10900/json/version', 'TLS by default');
   assert.equal(requested.searchParams.get('country'), 'de');
   assert.equal(requested.searchParams.get('password'), 's3cret');
+});
+
+test('tls: false talks plaintext to the gateway', async () => {
+  const seen: string[] = [];
+  const client = new ArchonumClient({ ...creds, gateway: 'gateway:10900', tls: false, fetch: async (url) => {
+    seen.push(url);
+    return new Response(JSON.stringify({ webSocketDebuggerUrl: 'ws://gateway:10900/devtools/browser/xyz' }), { status: 200 });
+  } });
+  await client.getConnectionInfo();
+  assert.equal(new URL(seen[0]).protocol, 'http:');
 });
 
 test('getConnectionInfo throws on a non-OK response and on a non-JSON body', async () => {
@@ -101,6 +111,7 @@ test('fromEnv builds a client from ARCHONUM_* and lets overrides win', () => {
     assert.equal(client.username, 'relayer');
     assert.equal(client.country, 'us');
     assert.equal(client.gateway, 'gateway.archonum.com:10900');
+    assert.equal(client.tls, true);
     assert.equal(client.baseUrl, 'https://app.archonum.com');
   } finally {
     process.env = prev;

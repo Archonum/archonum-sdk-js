@@ -107,6 +107,7 @@ detail, including per-call overrides):
 | `ARCHONUM_TOKEN` | — | required; `ARCHONUM_PASSWORD` is accepted as a fallback (same secret, older name) |
 | `ARCHONUM_USERNAME` | — | required; no default any more |
 | `ARCHONUM_GATEWAY` | `gateway.archonum.com:10900` | |
+| `ARCHONUM_GATEWAY_TLS` | `true` | the gateway connection is TLS (`https://` handshake, `wss://` session); `false` only for a gateway without a certificate |
 | `ARCHONUM_BASE_URL` | `https://app.archonum.com` | the archonum platform REST API, used by `getHealth()`/`getCredits()` |
 
 `ArchonumClient.fromEnv()` (and `ArchonumEngine.fromEnv()`, which forwards to it)

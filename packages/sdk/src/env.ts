@@ -1,5 +1,6 @@
 export interface EnvConfig {
   gateway?: string;
+  tls?: boolean;
   baseUrl?: string;
   username?: string;
   token?: string;
@@ -51,8 +52,11 @@ export function gatewayHostFromUrl(value: string): string | undefined {
 /** The ARCHONUM_* configuration, with fallbacks resolved but no defaults applied. */
 export function readEnvConfig(env: Record<string, string | undefined> = process.env): EnvConfig {
   const gateway = env.ARCHONUM_GATEWAY || (env.ARCHONUM_CDP_BASE_URL ? gatewayHostFromUrl(env.ARCHONUM_CDP_BASE_URL) : undefined);
+  // Unset leaves the client default (TLS on); only an explicit false/0 turns it off.
+  const tlsEnv = env.ARCHONUM_GATEWAY_TLS?.trim().toLowerCase();
   return {
     gateway,
+    tls: tlsEnv ? !['false', '0', 'no', 'off'].includes(tlsEnv) : undefined,
     baseUrl: env.ARCHONUM_BASE_URL || undefined,
     username: env.ARCHONUM_USERNAME || env.ARCHONUM_CDP_USERNAME || undefined,
     token: env.ARCHONUM_TOKEN || env.ARCHONUM_PASSWORD || env.ARCHONUM_CDP_PASSWORD || undefined,

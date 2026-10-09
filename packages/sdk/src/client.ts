@@ -7,6 +7,10 @@ export type FetchLike = (url: string, init?: { headers?: Record<string, string> 
 export interface ArchonumClientOptions {
   /** host:port of the gateway. Default: gateway.archonum.com:10900 */
   gateway?: string;
+  /** Talk to the gateway over TLS (https:// for /json/version, so the CDP
+   * WebSocket it hands back is wss://). Default: true. Set false only for a
+   * gateway without a certificate, e.g. one on a private network. */
+  tls?: boolean;
   /** Base URL of the archonum platform REST API. Default: https://app.archonum.com */
   baseUrl?: string;
   username?: string;
@@ -40,6 +44,7 @@ export interface GetCDPUrlOptions {
  */
 export class ArchonumClient {
   readonly gateway: string;
+  readonly tls: boolean;
   readonly baseUrl: string;
   readonly username: string;
   readonly token: string;
@@ -51,6 +56,7 @@ export class ArchonumClient {
 
   constructor({
     gateway = 'gateway.archonum.com:10900',
+    tls = true,
     baseUrl = 'https://app.archonum.com',
     username,
     token,
@@ -64,6 +70,7 @@ export class ArchonumClient {
     const secret = token ?? password;
     if (!username || !secret) throw new Error('ArchonumClient: username and token are required');
     this.gateway = gateway;
+    this.tls = tls;
     this.baseUrl = baseUrl;
     this.username = username;
     this.token = secret;
@@ -84,6 +91,7 @@ export class ArchonumClient {
    *   ARCHONUM_TOKEN      required (ARCHONUM_PASSWORD, ARCHONUM_CDP_PASSWORD accepted as fallbacks)
    *   ARCHONUM_USERNAME   required (ARCHONUM_CDP_USERNAME accepted as a fallback)
    *   ARCHONUM_GATEWAY    default: gateway.archonum.com:10900 (or derived from ARCHONUM_CDP_BASE_URL)
+   *   ARCHONUM_GATEWAY_TLS default: true; `false` or `0` talks plaintext to the gateway
    *   ARCHONUM_BASE_URL   default: https://app.archonum.com
    * A `.env` in the current directory is loaded as a fallback — real environment
    * variables always win over it. `country` is not read from the environment;
@@ -91,8 +99,8 @@ export class ArchonumClient {
    */
   static fromEnv(overrides: ArchonumClientOptions = {}): ArchonumClient {
     loadDotEnv();
-    const { gateway, baseUrl, username, token } = readEnvConfig();
-    return new this({ gateway, baseUrl, username, token, ...overrides });
+    const { gateway, tls, baseUrl, username, token } = readEnvConfig();
+    return new this({ gateway, tls, baseUrl, username, token, ...overrides });
   }
 
   /**
@@ -117,7 +125,9 @@ export class ArchonumClient {
    * crashing on JSON.parse.
    */
   async getConnectionInfo(country: string = this.country): Promise<ConnectionInfo> {
-    const res = await this.#fetch(this.withCreds(`http://${this.gateway}/json/version`, country));
+    // Over TLS the gateway answers with a wss:// webSocketDebuggerUrl, so the
+    // credentialed WebSocket stays encrypted too.
+    const res = await this.#fetch(this.withCreds(`${this.tls ? 'https' : 'http'}://${this.gateway}/json/version`, country));
     const text = await res.text();
     if (!res.ok) throw new Error(`gateway HTTP ${res.status}`);
     try {
