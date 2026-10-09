@@ -8,8 +8,10 @@ export interface ArchonumClientOptions {
   /** host:port of the gateway. Default: gateway.archonum.com:10900 */
   gateway?: string;
   /** Talk to the gateway over TLS (https:// for /json/version, so the CDP
-   * WebSocket it hands back is wss://). Default: true. Set false only for a
-   * gateway without a certificate, e.g. one on a private network. */
+   * WebSocket it hands back is wss://). Default: true. Deliberately left out
+   * of the README: false is for a gateway without a certificate (local
+   * development, the hosted MCP's hop inside the docker network), never for
+   * archonum's public gateway. */
   tls?: boolean;
   /** Base URL of the archonum platform REST API. Default: https://app.archonum.com */
   baseUrl?: string;
@@ -91,7 +93,7 @@ export class ArchonumClient {
    *   ARCHONUM_TOKEN      required (ARCHONUM_PASSWORD, ARCHONUM_CDP_PASSWORD accepted as fallbacks)
    *   ARCHONUM_USERNAME   required (ARCHONUM_CDP_USERNAME accepted as a fallback)
    *   ARCHONUM_GATEWAY    default: gateway.archonum.com:10900 (or derived from ARCHONUM_CDP_BASE_URL)
-   *   ARCHONUM_GATEWAY_TLS default: true; `false` or `0` talks plaintext to the gateway
+   *   ARCHONUM_GATEWAY_TLS default: true; `false`/`0` = plaintext (local development only)
    *   ARCHONUM_BASE_URL   default: https://app.archonum.com
    * A `.env` in the current directory is loaded as a fallback — real environment
    * variables always win over it. `country` is not read from the environment;

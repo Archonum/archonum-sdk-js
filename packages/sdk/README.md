@@ -51,7 +51,6 @@ most integrations need.
 ```js
 new ArchonumClient({
   gateway: 'gateway.archonum.com:10900', // host:port of the CDP gateway
-  tls: true,             // https:// handshake + wss:// session; env ARCHONUM_GATEWAY_TLS=false turns it off
   baseUrl: 'https://app.archonum.com',   // the archonum platform REST API
   username: '…',         // required
   token: '…',            // required; also accepted as the gateway password
