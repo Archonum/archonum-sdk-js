@@ -65,15 +65,19 @@ export function desktopUserAgentMetadata(ua: string, real: DeviceHints): Protoco
   if (!real.brands?.length && !chrome) return undefined;
   const major = chrome?.[1] ?? '';
   const full = chrome ? chrome[1] + (chrome[2] || '.0.0.0') : '';
+  const fullVersionList =
+    real.fullVersionList ??
+    (full
+      ? [{ brand: 'Chromium', version: full }, { brand: 'Google Chrome', version: full }, { brand: 'Not_A Brand', version: '8.0.0.0' }]
+      : undefined);
   return {
     brands: real.brands?.length
       ? [...real.brands]
       : [{ brand: 'Chromium', version: major }, { brand: 'Google Chrome', version: major }, { brand: 'Not_A Brand', version: '8' }],
-    fullVersionList:
-      real.fullVersionList ??
-      (full
-        ? [{ brand: 'Chromium', version: full }, { brand: 'Google Chrome', version: full }, { brand: 'Not_A Brand', version: '8.0.0.0' }]
-        : undefined),
+    fullVersionList,
+    // Deprecated, but older WebViews' CDP rejects the whole override without it
+    // ("mandatory field missing": params.userAgentMetadata.fullVersion).
+    fullVersion: full || fullVersionList?.find((b) => /chrom/i.test(b.brand))?.version || '',
     platform: real.platform || (/\bAndroid\b/.test(ua) ? 'Android' : 'Linux'),
     platformVersion: real.platformVersion || /\bAndroid ([\d.]+)/.exec(ua)?.[1] || '',
     architecture: real.architecture || '',
@@ -174,7 +178,11 @@ export class ArchonumSession {
       if (real.ua) {
         // Drop the "Mobile" token (…Chrome/148 Mobile Safari → …Chrome/148 Safari).
         const desktopUA = real.ua.replace(/\sMobile(?=\sSafari)/i, '');
-        await page.setUserAgent(desktopUA, desktopUserAgentMetadata(desktopUA, real));
+        // A browser that rejects the metadata still gets the desktop UA:
+        // missing hints are a tell, a failed session is worse.
+        await page
+          .setUserAgent(desktopUA, desktopUserAgentMetadata(desktopUA, real))
+          .catch(() => page.setUserAgent(desktopUA));
       } else {
         // Device exposed no UA to derive from — fall back to the static desktop UA.
         await page.setUserAgent(DESKTOP_UA);

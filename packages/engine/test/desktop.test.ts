@@ -10,6 +10,7 @@ test('desktop client hints are derived from the UA when the page had no userAgen
   assert.ok(m);
   assert.deepEqual(m.brands.map((b) => `${b.brand} ${b.version}`), ['Chromium 148', 'Google Chrome 148', 'Not_A Brand 8']);
   assert.equal(m.fullVersionList?.[0].version, '148.0.7778.120');
+  assert.equal(m.fullVersion, '148.0.7778.120', 'older WebViews reject the override without it');
   assert.equal(m.platform, 'Android');
   assert.equal(m.platformVersion, '12');
   assert.equal(m.mobile, false);
