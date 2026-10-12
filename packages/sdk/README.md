@@ -13,10 +13,9 @@ anything. Create an account at
 [app.archonum.com/register](https://app.archonum.com/register/) (plans, including an
 Enterprise tier, are at [archonum.com/#pricing](https://archonum.com/#pricing)), sign
 in, and take your API token from the API Key page. That one token is the only secret
-you need — it doubles as the gateway password, so the same value goes on both
-`ARCHONUM_TOKEN` and (implicitly) the CDP gateway's `password` query parameter. Your
-username is just your account username. Set both as `ARCHONUM_TOKEN` and
-`ARCHONUM_USERNAME` — see [Configuration](#configuration). For access questions or
+you need — the same value authenticates the REST API, the hosted MCP and the CDP
+gateway, and it identifies your account on its own, so no username is required.
+Set it as `ARCHONUM_API_TOKEN` — see [Configuration](#configuration). For access questions or
 Enterprise plans, email [hello@archonum.com](mailto:hello@archonum.com).
 
 ## Install
@@ -52,8 +51,7 @@ most integrations need.
 new ArchonumClient({
   gateway: 'gateway.archonum.com:10900', // host:port of the CDP gateway
   baseUrl: 'https://app.archonum.com',   // the archonum platform REST API
-  username: '…',         // required
-  token: '…',            // required; also accepted as the gateway password
+  token: '…',            // required — the API token
   country: '',           // ISO 3166-1 alpha-2 exit country; '' = gateway chooses
   connectRetries: 5,     // attempts for the gateway request in getCDPUrl()
   log: () => {},         // progress sink; pass console.log for chatter
@@ -61,13 +59,12 @@ new ArchonumClient({
 });
 ```
 
-`username` and `token` are both required: the constructor throws
-`ArchonumClient: username and token are required` if either is missing.
-Neither has a default in the constructor itself — `fromEnv()` below is what
-resolves them from the environment. `password` is still accepted as a
-deprecated alias for `token` (`client.password` also still returns it), kept
-only because it is the literal query-string parameter name the gateway
-expects. Note also that the constructor's own default for `country` is `''`
+`token` is required: the constructor throws
+`ArchonumClient: token is required (ARCHONUM_API_TOKEN)` if it is missing. It
+has no default in the constructor itself — `fromEnv()` below is what resolves
+it from the environment. The token alone identifies your account; it is sent
+to the gateway as the `token` query parameter. Note also that the constructor's
+own default for `country` is `''`
 (let the gateway choose), and it is never read from the environment — pass
 it explicitly (in the constructor, or as a `fromEnv()` override) if you want
 one pinned.
@@ -77,9 +74,8 @@ one pinned.
 
 | Variable | Default | Notes |
 |---|---|---|
-| `ARCHONUM_TOKEN` | — | required; `ARCHONUM_PASSWORD` and `ARCHONUM_CDP_PASSWORD` are accepted as fallbacks (same secret, older names) |
-| `ARCHONUM_USERNAME` | — | required; `ARCHONUM_CDP_USERNAME` is accepted as a fallback |
-| `ARCHONUM_GATEWAY` | `gateway.archonum.com:10900` | or derive it from `ARCHONUM_CDP_BASE_URL` (a full URL) if that's what your `.env` already has |
+| `ARCHONUM_API_TOKEN` | — | required — your API token |
+| `ARCHONUM_GATEWAY` | `gateway.archonum.com:10900` | |
 | `ARCHONUM_BASE_URL` | `https://app.archonum.com` | |
 
 `fromEnv()` also loads a `.env` file from the current working directory as a
@@ -153,18 +149,19 @@ the same `.env` fallback without going through `fromEnv()`.
 
 Reads the `ARCHONUM_*` variables (see Configuration above) off `env`
 (defaults to `process.env`), resolving each field's fallback chain, but
-applies no defaults itself — `gateway`/`baseUrl`/`username`/`token` are all
-`undefined` when unset. `ArchonumClient.fromEnv()` uses this internally,
+applies no defaults itself — `gateway`/`baseUrl`/`token` are all
+`undefined` when unset. Variable names from earlier releases are still
+resolved for compatibility. `ArchonumClient.fromEnv()` uses this internally,
 after calling `loadDotEnv()`, and applies the constructor's defaults on top.
 
 ### `gatewayHostFromUrl(value: string): string | undefined`
 
 Extracts a bare `host:port` from either a full URL
 (`http://stagegw.archonum.com:10900`) or an already-bare `host:port`; returns
-`undefined` if `value` is neither. Used internally to derive `gateway` from
-`ARCHONUM_CDP_BASE_URL`, which is a URL while `ARCHONUM_GATEWAY` (and
-`ArchonumClientOptions.gateway`) is bare `host:port` — exported since getting
-that mismatch wrong produces a confusing 401.
+`undefined` if `value` is neither. `ARCHONUM_GATEWAY` (and
+`ArchonumClientOptions.gateway`) is bare `host:port`; this helper normalizes a
+full URL into that form — exported since getting that mismatch wrong produces
+a confusing 401.
 
 ## Security note
 

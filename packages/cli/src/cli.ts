@@ -20,7 +20,7 @@ let engine: ArchonumEngine;
 try {
   engine = ArchonumEngine.fromEnv({ log: (msg) => console.log(`  ${msg}`) });
 } catch {
-  console.error('✗ set ARCHONUM_TOKEN and ARCHONUM_USERNAME — export them, or put them in a .env file in the current directory');
+  console.error('✗ set ARCHONUM_API_TOKEN — export it, or put it in a .env file in the current directory');
   process.exit(1);
 }
 

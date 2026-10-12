@@ -5,6 +5,22 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { loadDotEnv, readEnvConfig, gatewayHostFromUrl } from '../src/env.js';
 
+test('readEnvConfig reads ARCHONUM_API_TOKEN as token, username optional', () => {
+  const cfg = readEnvConfig({ ARCHONUM_API_TOKEN: 'api-tok' } as NodeJS.ProcessEnv);
+  assert.equal(cfg.token, 'api-tok');
+  assert.equal(cfg.username, undefined);
+});
+
+test('readEnvConfig prefers ARCHONUM_API_TOKEN over every older token name', () => {
+  const cfg = readEnvConfig({
+    ARCHONUM_API_TOKEN: 'api-tok',
+    ARCHONUM_TOKEN: 'tok',
+    ARCHONUM_PASSWORD: 'pw',
+    ARCHONUM_CDP_PASSWORD: 'cdp-pw',
+  } as NodeJS.ProcessEnv);
+  assert.equal(cfg.token, 'api-tok');
+});
+
 test('readEnvConfig reads ARCHONUM_TOKEN as token', () => {
   const cfg = readEnvConfig({ ARCHONUM_TOKEN: 'tok', ARCHONUM_USERNAME: 'user' } as NodeJS.ProcessEnv);
   assert.equal(cfg.token, 'tok');
@@ -132,6 +148,7 @@ test('an empty-string variable falls through to the next fallback', () => {
   // let an empty string win and produce a confusing 401 instead of using the
   // credential that is actually set.
   const cfg = readEnvConfig({
+    ARCHONUM_API_TOKEN: '',
     ARCHONUM_TOKEN: '',
     ARCHONUM_PASSWORD: 'from-password',
     ARCHONUM_USERNAME: '',

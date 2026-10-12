@@ -38,18 +38,17 @@ of them needs a token before it can do anything.
    Plans are listed at [archonum.com/#pricing](https://archonum.com/#pricing), including
    an Enterprise tier.
 2. **Get your API token** — from the API Key page after signing in. It's the only
-   secret you need: it doubles as the CDP gateway's password, so there's nothing
-   separate to fetch for that. Note your account username too.
-3. **Put them in the environment** — see [Configuration](#configuration). Both
-   `ARCHONUM_TOKEN` and `ARCHONUM_USERNAME` are required; there is no default
-   username any more.
+   secret you need: the same token authenticates the SDK, CLI, REST API, hosted
+   MCP and the CDP gateway.
+3. **Put it in the environment** — see [Configuration](#configuration). Only
+   `ARCHONUM_API_TOKEN` is required; a username is not needed.
 
 For access questions, Enterprise plans, or anything the dashboard doesn't cover,
 email [hello@archonum.com](mailto:hello@archonum.com).
 
 Without credentials every client fails the same clear way rather than hanging — the
-CLI prints `✗ set ARCHONUM_TOKEN and ARCHONUM_USERNAME …` and exits 1, and
-`ArchonumClient` throws `username and token are required`.
+CLI prints `✗ set ARCHONUM_API_TOKEN …` and exits 1, and `ArchonumClient` throws
+`token is required`.
 
 ## Which one do I need?
 
@@ -104,8 +103,7 @@ detail, including per-call overrides):
 
 | Variable | Default | |
 |---|---|---|
-| `ARCHONUM_TOKEN` | — | required; `ARCHONUM_PASSWORD` is accepted as a fallback (same secret, older name) |
-| `ARCHONUM_USERNAME` | — | required; no default any more |
+| `ARCHONUM_API_TOKEN` | — | required — your API token, the one secret for every archonum surface |
 | `ARCHONUM_GATEWAY` | `gateway.archonum.com:10900` | |
 | `ARCHONUM_BASE_URL` | `https://app.archonum.com` | the archonum platform REST API, used by `getHealth()`/`getCredits()` |
 
@@ -117,7 +115,7 @@ environment variables always win over anything in `.env`; a missing or unreadabl
 be explicit about it.
 
 ```bash
-cp .env.example .env   # then fill in ARCHONUM_TOKEN and ARCHONUM_USERNAME
+cp .env.example .env   # then fill in ARCHONUM_API_TOKEN
 ```
 
 ## Migrating from the pre-split package
@@ -151,9 +149,9 @@ npm), the split changes these APIs:
 - `ArchonumSession` no longer exposes a public `client` field.
 - `ArchonumSession`'s constructor changed from `(browser, info, client)` to
   `(browser, info, { humanize })`.
-- `ARCHONUM_PASSWORD` is now `ARCHONUM_TOKEN` (the old name is still accepted
-  as a fallback). The `relayer` default for `ARCHONUM_USERNAME` is gone —
-  username is required, same as the token.
+- `ARCHONUM_PASSWORD` is now `ARCHONUM_API_TOKEN`; the token identifies the
+  account, so no username is needed. Older variable names from earlier setups
+  are still read, but `ARCHONUM_API_TOKEN` is the one to use.
 - `ArchonumClient` gained `getHealth()` and `getCredits()`, hitting the
   archonum platform REST API (`baseUrl`, default `https://app.archonum.com`)
   rather than the CDP gateway.

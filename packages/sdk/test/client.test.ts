@@ -4,9 +4,26 @@ import { ArchonumClient } from '../src/client.js';
 
 const creds = { username: 'relayer', token: 's3cret' };
 
-test('the constructor requires a username and token', () => {
-  assert.throws(() => new ArchonumClient({ username: 'relayer' }), /username and token are required/);
-  assert.throws(() => new ArchonumClient({ token: 'tok' }), /username and token are required/);
+test('the constructor requires a token; the username is optional', () => {
+  assert.throws(() => new ArchonumClient({ username: 'relayer' }), /token is required/);
+  assert.throws(() => new ArchonumClient({}), /token is required/);
+  const tokenOnly = new ArchonumClient({ token: 'tok' });
+  assert.equal(tokenOnly.token, 'tok');
+  assert.equal(tokenOnly.username, undefined);
+  assert.equal(new ArchonumClient({ token: 'tok', username: '' }).username, undefined);
+});
+
+test('withCreds sends token= for a token-only client, and the legacy pair when a username is set', () => {
+  const tokenOnly = new URL(new ArchonumClient({ token: 's3cret', country: 'ch' }).withCreds('ws://gw/devtools/browser/x'));
+  assert.equal(tokenOnly.searchParams.get('token'), 's3cret');
+  assert.equal(tokenOnly.searchParams.get('username'), null);
+  assert.equal(tokenOnly.searchParams.get('password'), null);
+  assert.equal(tokenOnly.searchParams.get('country'), 'ch');
+
+  const pair = new URL(new ArchonumClient({ username: 'relayer', token: 's3cret' }).withCreds('ws://gw/devtools/browser/x'));
+  assert.equal(pair.searchParams.get('username'), 'relayer');
+  assert.equal(pair.searchParams.get('password'), 's3cret');
+  assert.equal(pair.searchParams.get('token'), null);
 });
 
 test('token and the deprecated password option are interchangeable', () => {

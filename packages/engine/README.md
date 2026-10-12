@@ -173,7 +173,7 @@ the rest of `overrides` through to `ArchonumClient.fromEnv()`:
 const engine = ArchonumEngine.fromEnv({ log: console.log });
 ```
 
-Credentials (`username`, `token`), gateway host, the platform API `baseUrl`, exit
+Credentials (`token`), gateway host, the platform API `baseUrl`, exit
 country, connect retries, and `log` all live on `ArchonumClient` (defined in the
 sibling package `@archonum/sdk`, re-exported here for convenience) — see
 `ArchonumClientOptions` and the `ARCHONUM_*` environment variables it reads.

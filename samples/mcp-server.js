@@ -25,7 +25,7 @@
 // The MCP SDK + zod ship as dependencies of this workspace package, so `pnpm install`
 // at the repo root covers them.
 //
-//   ARCHONUM_TOKEN=… ARCHONUM_USERNAME=… node samples/mcp-server.js
+//   ARCHONUM_API_TOKEN=… node samples/mcp-server.js
 //   # or wire it into an MCP client's config as the command to run.
 //   # Uses --env-file too:  node --env-file=.env samples/mcp-server.js
 //
@@ -36,8 +36,8 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { z } from 'zod';
 
-if (!process.env.ARCHONUM_TOKEN && !process.env.ARCHONUM_PASSWORD && !process.env.ARCHONUM_CDP_PASSWORD) {
-  console.error('✗ set ARCHONUM_TOKEN and ARCHONUM_USERNAME (see the comment at the top of this file)');
+if (!process.env.ARCHONUM_API_TOKEN && !process.env.ARCHONUM_TOKEN && !process.env.ARCHONUM_PASSWORD && !process.env.ARCHONUM_CDP_PASSWORD) {
+  console.error('✗ set ARCHONUM_API_TOKEN (see the comment at the top of this file)');
   process.exit(1);
 }
 

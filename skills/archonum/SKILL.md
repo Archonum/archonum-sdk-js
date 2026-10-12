@@ -12,7 +12,7 @@ JS, can act on pages (forms, login, multi-step flows), and can view a page as
 seen from a chosen country.
 
 The browser is hosted, so there is no browser or driver to install — you only
-add the endpoint. (One exception: Claude Desktop with Basic auth needs the
+add the endpoint. (One exception: Claude Desktop with an API key needs the
 `mcp-remote` bridge, because its connector UI cannot send custom headers.
 OAuth needs nothing.)
 
@@ -35,9 +35,10 @@ Two ways to authenticate:
 
 - **OAuth (interactive clients):** add the endpoint with no credentials; the
   client discovers the OAuth flow and opens a browser window to sign in.
-- **HTTP Basic (headless setups):** your archonum **username** and **API
-  token** (the same token the proxy and CDP gateway use). Your API-key page
-  shows a pre-encoded, paste-ready command under "Setup for agents".
+- **API token (headless setups):** your archonum **API token** as a Bearer
+  header — the one token that also works for the REST API, the SDK and the
+  proxy/CDP gateway. Keep it in the `ARCHONUM_API_TOKEN` environment variable
+  (your API-key page shows it) rather than pasting it into configs.
 
 Claude Code (OAuth — then run `/mcp` and pick archonum → Authenticate):
 
@@ -45,11 +46,11 @@ Claude Code (OAuth — then run `/mcp` and pick archonum → Authenticate):
 claude mcp add --transport http archonum https://app.archonum.com/mcp
 ```
 
-Claude Code (Basic):
+Claude Code (API token):
 
 ```
 claude mcp add --transport http archonum https://app.archonum.com/mcp \
-  --header "Authorization: Basic <base64 of username:token>"
+  --header "Authorization: Bearer $ARCHONUM_API_TOKEN"
 ```
 
 Generic MCP client config (Streamable HTTP):
@@ -60,17 +61,14 @@ Generic MCP client config (Streamable HTTP):
     "archonum": {
       "type": "http",
       "url": "https://app.archonum.com/mcp",
-      "headers": { "Authorization": "Basic <base64 of username:token>" }
+      "headers": { "Authorization": "Bearer <ARCHONUM_API_TOKEN>" }
     }
   }
 }
 ```
 
-Generate `<base64 of username:token>` yourself with:
-
-```
-printf '%s' 'USERNAME:TOKEN' | base64
-```
+HTTP Basic with `username:token` (base64-encoded) is still accepted for
+existing setups.
 
 ## Step 2 — Verify
 
@@ -121,9 +119,10 @@ A successful call returns the page's rendered text with a status line.
 
 ## Troubleshooting
 
-- **401 / invalid credentials** — the username or token is genuinely wrong (or
-  the account's email is unverified). Recheck the setup command on your API-key
-  page; regenerating the key invalidates the old one everywhere.
+- **401 / invalid credentials** — the API token is genuinely wrong (with Basic
+  auth: or the username does not match it), or the account's email is
+  unverified. Recheck the token on your API-key page; regenerating the key
+  invalidates the old one everywhere.
 - **402 / out of credits** — the balance is empty, or a free trial lapsed with
   credits still on the account. Do NOT re-authenticate or regenerate the key;
   it will not help. Top up, then retry.

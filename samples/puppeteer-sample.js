@@ -5,15 +5,15 @@
 // back — navigate, evaluate in the page, click, screenshot. Anything you can do
 // with a normal Puppeteer Page works, because that's exactly what it is.
 //
-//   ARCHONUM_TOKEN=… ARCHONUM_USERNAME=… node samples/puppeteer-sample.js
-//   ARCHONUM_TOKEN=… ARCHONUM_USERNAME=… node samples/puppeteer-sample.js https://news.ycombinator.com/
+//   ARCHONUM_API_TOKEN=… node samples/puppeteer-sample.js
+//   ARCHONUM_API_TOKEN=… node samples/puppeteer-sample.js https://news.ycombinator.com/
 //
 // Uses --env-file too:  node --env-file=.env samples/puppeteer-sample.js
 
 import { ArchonumEngine } from '@archonum/engine';
 
-if (!process.env.ARCHONUM_TOKEN && !process.env.ARCHONUM_PASSWORD && !process.env.ARCHONUM_CDP_PASSWORD) {
-  console.error('✗ set ARCHONUM_TOKEN and ARCHONUM_USERNAME (see the comment at the top of this file)');
+if (!process.env.ARCHONUM_API_TOKEN && !process.env.ARCHONUM_TOKEN && !process.env.ARCHONUM_PASSWORD && !process.env.ARCHONUM_CDP_PASSWORD) {
+  console.error('✗ set ARCHONUM_API_TOKEN (see the comment at the top of this file)');
   process.exit(1);
 }
 

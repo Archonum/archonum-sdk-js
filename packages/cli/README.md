@@ -15,25 +15,23 @@ Or install it:
 pnpm add -g @archonum/cli
 ```
 
-Either way it needs an archonum API token and your account username — the token
-doubles as the gateway password, so there's nothing else to fetch. Export them in
-your shell:
+Either way it needs your archonum API token — the one secret that authenticates
+every archonum surface, so there's nothing else to fetch. Export it in your shell:
 
 ```bash
-export ARCHONUM_TOKEN=…
-export ARCHONUM_USERNAME=…
+export ARCHONUM_API_TOKEN=…
 ```
 
-or put them in a `.env` file in the current directory (nothing else to configure —
+or put it in a `.env` file in the current directory (nothing else to configure —
 `archonum` loads it automatically):
 
 ```bash
-printf 'ARCHONUM_TOKEN=…\nARCHONUM_USERNAME=…\n' > .env
+printf 'ARCHONUM_API_TOKEN=…\n' > .env
 archonum https://www.canadagoose.com/
 ```
 
-If `ARCHONUM_TOKEN` or `ARCHONUM_USERNAME` isn't set either way, `archonum` prints
-a one-line error and exits — no stack trace.
+If `ARCHONUM_API_TOKEN` isn't set either way, `archonum` prints a one-line error
+and exits — no stack trace.
 
 ## Screenshot a site
 
@@ -89,8 +87,7 @@ better.
 Gateway credentials come from the environment — nothing secret is hardcoded:
 
 ```bash
-export ARCHONUM_TOKEN=…              # required (also accepted as ARCHONUM_PASSWORD)
-export ARCHONUM_USERNAME=…           # required; no default
+export ARCHONUM_API_TOKEN=…          # required
 export ARCHONUM_GATEWAY=host:port    # optional
 archonum https://www.canadagoose.com/
 ```
