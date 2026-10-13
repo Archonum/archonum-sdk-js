@@ -1,10 +1,12 @@
 {
   "name": "@archonum/sdk",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Authenticate against the archonum CDP gateway to get a credentialed CDP WebSocket URL, and check service health and credit balance. Zero dependencies.",
   "license": "MIT",
   "type": "module",
-  "engines": { "node": ">=20.12" },
+  "engines": {
+    "node": ">=20.12"
+  },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
@@ -13,11 +15,27 @@
       "import": "./dist/index.js"
     }
   },
-  "files": ["dist", "src", "CHANGELOG.md"],
-  "publishConfig": { "access": "public" },
-  "repository": { "type": "git", "url": "git+https://github.com/papers-ch/archonum-sdk-js.git", "directory": "packages/sdk" },
+  "files": [
+    "dist",
+    "src",
+    "CHANGELOG.md"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/papers-ch/archonum-sdk-js.git",
+    "directory": "packages/sdk"
+  },
   "homepage": "https://github.com/papers-ch/archonum-sdk-js/tree/master/packages/sdk#readme",
-  "keywords": ["archonum", "cdp", "chrome-devtools-protocol", "scraping", "proxy"],
+  "keywords": [
+    "archonum",
+    "cdp",
+    "chrome-devtools-protocol",
+    "scraping",
+    "proxy"
+  ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "test": "tsx --test test/*.test.ts"
