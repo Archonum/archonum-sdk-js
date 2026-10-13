@@ -15,8 +15,13 @@ export interface ArchonumClientOptions {
   tls?: boolean;
   /** Base URL of the archonum platform REST API. Default: https://app.archonum.com */
   baseUrl?: string;
+  /**
+   * @deprecated Not needed — the API token identifies the account. Still
+   * honoured for existing setups: when set, the gateway is sent the legacy
+   * `username`/`password` pair instead of the token-only form.
+   */
   username?: string;
-  /** The archonum API token — also accepted as the gateway password. */
+  /** The archonum API token — the one secret every archonum surface accepts. */
   token?: string;
   /** @deprecated Use `token` instead; kept as an alias for it. */
   password?: string;
@@ -48,7 +53,7 @@ export class ArchonumClient {
   readonly gateway: string;
   readonly tls: boolean;
   readonly baseUrl: string;
-  readonly username: string;
+  readonly username: string | undefined;
   readonly token: string;
   readonly country: string;
   readonly connectRetries: number;
@@ -70,11 +75,11 @@ export class ArchonumClient {
     fetch: fetchImpl,
   }: ArchonumClientOptions = {}) {
     const secret = token ?? password;
-    if (!username || !secret) throw new Error('ArchonumClient: username and token are required');
+    if (!secret) throw new Error('ArchonumClient: token is required (ARCHONUM_API_TOKEN)');
     this.gateway = gateway;
     this.tls = tls;
     this.baseUrl = baseUrl;
-    this.username = username;
+    this.username = username || undefined;
     this.token = secret;
     this.country = country;
     this.connectRetries = connectRetries;
@@ -90,11 +95,12 @@ export class ArchonumClient {
 
   /**
    * Build a client from the ARCHONUM_* environment variables:
-   *   ARCHONUM_TOKEN      required (ARCHONUM_PASSWORD, ARCHONUM_CDP_PASSWORD accepted as fallbacks)
-   *   ARCHONUM_USERNAME   required (ARCHONUM_CDP_USERNAME accepted as a fallback)
-   *   ARCHONUM_GATEWAY    default: gateway.archonum.com:10900 (or derived from ARCHONUM_CDP_BASE_URL)
+   *   ARCHONUM_API_TOKEN  required
+   *   ARCHONUM_GATEWAY    default: gateway.archonum.com:10900
    *   ARCHONUM_GATEWAY_TLS default: true; `false`/`0` = plaintext (local development only)
    *   ARCHONUM_BASE_URL   default: https://app.archonum.com
+   * Names from earlier releases (ARCHONUM_TOKEN, ARCHONUM_PASSWORD, ARCHONUM_USERNAME,
+   * ARCHONUM_CDP_*) are still read for compatibility but no longer documented.
    * A `.env` in the current directory is loaded as a fallback — real environment
    * variables always win over it. `country` is not read from the environment;
    * pass it via `overrides` if you need one.
@@ -111,12 +117,20 @@ export class ArchonumClient {
    *
    * The gateway authenticates via query-string params, so the token ends up in
    * the URL: keep credentialed URLs out of logs and anything persisted.
+   *
+   * Token-only clients send `token=`; with a `username` the legacy
+   * `username`/`password` pair goes out instead, which older gateways also
+   * understand.
    */
   withCreds(url: string, country: string = this.country): string {
     const u = new URL(url);
     if (country) u.searchParams.set('country', country);
-    u.searchParams.set('username', this.username);
-    u.searchParams.set('password', this.token);
+    if (this.username) {
+      u.searchParams.set('username', this.username);
+      u.searchParams.set('password', this.token);
+    } else {
+      u.searchParams.set('token', this.token);
+    }
     return u.toString();
   }
 

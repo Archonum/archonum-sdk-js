@@ -11,8 +11,8 @@
 // credentialed CDP endpoint. No @archonum/engine and no Puppeteer needed — this
 // sample imports only @archonum/sdk (plus playwright itself).
 //
-//   ARCHONUM_TOKEN=… ARCHONUM_USERNAME=… node samples/playwright-sample.js
-//   ARCHONUM_TOKEN=… ARCHONUM_USERNAME=… node samples/playwright-sample.js https://news.ycombinator.com/
+//   ARCHONUM_API_TOKEN=… node samples/playwright-sample.js
+//   ARCHONUM_API_TOKEN=… node samples/playwright-sample.js https://news.ycombinator.com/
 //
 // Note: the Runtime.enable leak-fix in @archonum/engine patches Puppeteer
 // only; Playwright manages CDP its own way. The real-device fingerprint (the thing
@@ -21,8 +21,8 @@
 import { ArchonumClient } from '@archonum/sdk';
 import { chromium } from 'playwright';
 
-if (!process.env.ARCHONUM_TOKEN && !process.env.ARCHONUM_PASSWORD && !process.env.ARCHONUM_CDP_PASSWORD) {
-  console.error('✗ set ARCHONUM_TOKEN and ARCHONUM_USERNAME (see the comment at the top of this file)');
+if (!process.env.ARCHONUM_API_TOKEN && !process.env.ARCHONUM_TOKEN && !process.env.ARCHONUM_PASSWORD && !process.env.ARCHONUM_CDP_PASSWORD) {
+  console.error('✗ set ARCHONUM_API_TOKEN (see the comment at the top of this file)');
   process.exit(1);
 }
 

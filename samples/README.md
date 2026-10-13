@@ -14,7 +14,7 @@ From the repo root:
 pnpm install
 pnpm build          # samples import the packages' compiled dist/, so this is required
 cp .env.example .env
-# then fill in ARCHONUM_TOKEN and ARCHONUM_USERNAME
+# then fill in ARCHONUM_API_TOKEN
 ```
 
 `fromEnv()` (used by every sample) loads `.env` from the current directory

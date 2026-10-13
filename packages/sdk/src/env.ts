@@ -59,6 +59,7 @@ export function readEnvConfig(env: Record<string, string | undefined> = process.
     tls: tlsEnv ? !['false', '0', 'no', 'off'].includes(tlsEnv) : undefined,
     baseUrl: env.ARCHONUM_BASE_URL || undefined,
     username: env.ARCHONUM_USERNAME || env.ARCHONUM_CDP_USERNAME || undefined,
-    token: env.ARCHONUM_TOKEN || env.ARCHONUM_PASSWORD || env.ARCHONUM_CDP_PASSWORD || undefined,
+    token:
+      env.ARCHONUM_API_TOKEN || env.ARCHONUM_TOKEN || env.ARCHONUM_PASSWORD || env.ARCHONUM_CDP_PASSWORD || undefined,
   };
 }
